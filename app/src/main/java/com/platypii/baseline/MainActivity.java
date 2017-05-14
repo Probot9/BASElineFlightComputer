@@ -55,6 +55,28 @@ public class MainActivity extends BaseActivity {
         if(audibleButton != null) {
             audibleButton.setOnLongClickListener(audibleLongClickListener);
         }
+
+        // Handle intents
+        final Intent intent = getIntent();
+        final String intentType = intent.getType();
+        if(intentType != null) {
+            if("vnd.google.fitness.activity/running".equals(intentType)) {
+                final String actionStatus = intent.getExtras().getString("actionStatus");
+                if("ActiveActionStatus".equals(actionStatus)) {
+                    // Start a "run": track logging and audible
+                    Services.audible.enableAudible();
+                    Services.logger.startLogging();
+                } else if("CompletedActionStatus".equals(actionStatus)) {
+                    // Stop a "run"
+                    Services.logger.stopLogging();
+                    Services.audible.disableAudible();
+                } else {
+                    Log.e(TAG, "Unexpected action status: " + actionStatus);
+                }
+            } else {
+                Log.w(TAG, "Unknown intent type: " + intentType);
+            }
+        }
     }
 
     @Override
