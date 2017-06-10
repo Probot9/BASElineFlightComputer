@@ -13,6 +13,12 @@
         android:defaultValue="true"/>
 
     <SwitchPreference
+        android:key="barometer_enabled"
+        android:summary="@string/pref_barometer_description"
+        android:title="@string/pref_barometer"
+        android:defaultValue="true"/>
+
+    <SwitchPreference
         android:key="bluetooth_enabled"
         android:summary="@string/pref_bluetooth_description"
         android:title="@string/pref_bluetooth"

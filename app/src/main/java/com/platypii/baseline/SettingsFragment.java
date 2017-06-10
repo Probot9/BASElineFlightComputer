@@ -27,6 +27,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
     private FirebaseAnalytics firebaseAnalytics;
 
     private SwitchPreference metricPreference;
+    private SwitchPreference barometerPreference;
     private SwitchPreference bluetoothPreference;
     private BluetoothDevicePreference bluetoothDevicePreference;
     private Preference signInPreference;
@@ -41,6 +42,9 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
 
         metricPreference = (SwitchPreference) findPreference("metric_enabled");
         metricPreference.setOnPreferenceChangeListener(this);
+
+        barometerPreference = (SwitchPreference) findPreference("barometer_enabled");
+        barometerPreference.setOnPreferenceChangeListener(this);
 
         bluetoothPreference = (SwitchPreference) findPreference("bluetooth_enabled");
         bluetoothPreference.setOnPreferenceChangeListener(this);
@@ -60,6 +64,10 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
             case "metric_enabled":
                 Log.i(TAG, "Setting metric mode: " + value);
                 Convert.metric = (Boolean) value;
+                break;
+            case "barometer_enabled":
+                Log.i(TAG, "Setting barometer enabled: " + value);
+                Services.alti.barometerEnabled = (Boolean) value;
                 break;
             case "auto_stop_enabled":
                 Log.i(TAG, "Setting auto-stop mode: " + value);
@@ -97,6 +105,12 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
             metricPreference.setSummary("Current units: metric");
         } else {
             metricPreference.setSummary("Current units: imperial");
+        }
+        // Update barometer views
+        if(Services.alti.barometerEnabled) {
+            barometerPreference.setSummary("Barometric altimeter enabled");
+        } else {
+            barometerPreference.setSummary("Barometric altimeter disabled");
         }
         // Update bluetooth views
         if(Services.bluetooth.preferenceEnabled) {
