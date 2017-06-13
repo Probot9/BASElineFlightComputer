@@ -74,6 +74,11 @@ public class TrackDataActivity extends BaseActivity implements DialogInterface.O
         Intents.openTrackKml(this, track.trackKml);
     }
 
+    public void clickAugmented(View v) {
+        firebaseAnalytics.logEvent("click_track_augmented", null);
+        Intents.openAugmentedView(this, track.track_id);
+    }
+
     public void clickDelete(View v) {
         // Analytics
         final Bundle bundle = new Bundle();
