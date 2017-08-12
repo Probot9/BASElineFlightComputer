@@ -143,11 +143,16 @@ public class MyAltimeter implements Service, MyLocationListener {
             }
 
             // Update gps kalman filter
-            if(lastLoc != null) {
-                final long deltaTime = loc.millis - lastLoc.millis; // time since last gps altitude
-                gpsFilter.update(loc.altitude_gps, deltaTime * 0.001);
+            if (lastLoc == null) {
+                // Initial update
+                gpsFilter.init(loc.altitude_gps, 0);
             } else {
-                gpsFilter.update(loc.altitude_gps, 0);
+                final long deltaTime = loc.millis - lastLoc.millis;
+                if (0 < deltaTime && deltaTime < 10000) {
+                    gpsFilter.update(loc.altitude_gps, deltaTime * 0.001);
+                } else {
+                    Log.w(TAG, "Stale GPS altitude " + loc.altitude_gps + " " + deltaTime);
+                }
             }
             lastLoc = loc;
 

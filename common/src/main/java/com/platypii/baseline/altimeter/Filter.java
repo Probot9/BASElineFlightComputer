@@ -11,6 +11,8 @@ public abstract class Filter {
     public double v = Double.NaN; // Rate of climb m/s
     // public double a = Double.NaN; // TODO: Vertical acceleration
 
+    public abstract void init(double z, double v);
+
     /**
      * Process a new measurement
      * @param z The measurement
