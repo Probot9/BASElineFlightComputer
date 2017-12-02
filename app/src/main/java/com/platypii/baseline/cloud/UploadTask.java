@@ -25,21 +25,12 @@ import java.net.URL;
 /**
  * Upload to the cloud
  */
-class UploadTask implements Runnable {
+class UploadTask {
     private static final String TAG = "UploadTask";
 
     private static final String postUrl = BaselineCloud.baselineServer + "/tracks";
 
-    private final Context context;
-    private final TrackFile trackFile;
-
-    UploadTask(Context context, TrackFile trackFile) {
-        this.context = context;
-        this.trackFile = trackFile;
-    }
-
-    @Override
-    public void run() {
+    static boolean upload(Context context, TrackFile trackFile) {
         Log.i(TAG, "Uploading track " + trackFile);
         // Check for network availability. Still try to upload anyway, but don't report to firebase
         final boolean networkAvailable = Network.isAvailable(context);
@@ -56,24 +47,28 @@ class UploadTask implements Runnable {
             Services.cloud.listing.listAsync(authToken, true);
             Log.i(TAG, "Upload successful, track " + trackData.track_id);
             EventBus.getDefault().post(new SyncEvent.UploadSuccess(trackFile, trackData));
+            return true;
         } catch(AuthException e) {
             Log.e(TAG, "Failed to upload file - auth error", e);
             if(networkAvailable) {
                 Exceptions.report(e);
             }
             EventBus.getDefault().post(new SyncEvent.UploadFailure(trackFile, "auth error"));
+            return false;
         } catch(IOException e) {
             Log.e(TAG, "Failed to upload file", e);
             if(networkAvailable) {
                 Exceptions.report(e);
             }
             EventBus.getDefault().post(new SyncEvent.UploadFailure(trackFile, e.getMessage()));
+            return false;
         } catch(JSONException e) {
             Log.e(TAG, "Failed to parse response", e);
             if(networkAvailable) {
                 Exceptions.report(e);
             }
             EventBus.getDefault().post(new SyncEvent.UploadFailure(trackFile, "invalid response from server"));
+            return false;
         }
     }
 

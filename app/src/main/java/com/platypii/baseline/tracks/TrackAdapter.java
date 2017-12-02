@@ -125,7 +125,7 @@ class TrackAdapter extends BaseAdapter {
         return items.get(position);
     }
 
-    public void clickItem(int position, @NonNull Context context) {
+    void clickItem(int position, @NonNull Context context) {
         final ListItem item = items.get(position);
         final int itemType = item.getType();
         switch(itemType) {

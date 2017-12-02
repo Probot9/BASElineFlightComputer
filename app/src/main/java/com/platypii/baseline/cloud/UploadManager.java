@@ -6,7 +6,6 @@ import com.platypii.baseline.events.AuthEvent;
 import com.platypii.baseline.events.LoggingEvent;
 import com.platypii.baseline.events.SyncEvent;
 import com.platypii.baseline.tracks.TrackFile;
-import com.platypii.baseline.tracks.TrackFiles;
 import com.platypii.baseline.tracks.TrackState;
 import com.platypii.baseline.util.Exceptions;
 import android.content.Context;
@@ -28,6 +27,9 @@ public class UploadManager {
     // Mapping from local track file to cloud data
     private final Map<TrackFile,CloudData> completedUploads = new HashMap<>();
 
+    // Upload queue
+    private UploadQueue queue = new UploadQueue();
+
     private Context context;
 
     public void start(Context context) {
@@ -35,23 +37,12 @@ public class UploadManager {
         // Listen for track completion
         EventBus.getDefault().register(this);
         // Check for queued tracks to upload
-        uploadAll();
-    }
-
-    private void upload(@NonNull TrackFile trackFile) {
-        // Mark track as queued for upload
-        Services.trackState.setState(trackFile, TrackState.UPLOADING);
-        // Start upload thread
-        new Thread(new UploadTask(context, trackFile)).start();
+        queue.start(context);
     }
 
     private void uploadAll() {
-        if(BaseActivity.currentAuthState == AuthEvent.SIGNED_IN) {
-            for(TrackFile trackFile : TrackFiles.getTracks(context)) {
-                Log.i(TAG, "Auto syncing track " + trackFile);
-                upload(trackFile);
-            }
-        }
+        // Upload queued tracks
+        queue.tendQueue(context);
     }
 
     @Subscribe(threadMode = ThreadMode.ASYNC)
@@ -59,7 +50,7 @@ public class UploadManager {
         if(BaseActivity.currentAuthState == AuthEvent.SIGNED_IN && !event.started) {
             Log.i(TAG, "Auto syncing track " + event.trackFile);
             Exceptions.log("Logging stopped, autosyncing track " + event.trackFile);
-            upload(event.trackFile);
+            uploadAll();
         }
     }
     @Subscribe(threadMode = ThreadMode.MAIN)

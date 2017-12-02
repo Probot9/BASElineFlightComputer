@@ -121,22 +121,16 @@ public class TrackRemoteActivity extends BaseActivity implements DialogInterface
     }
 
     private void deleteRemote() {
-        if(isSignedIn()) {
-            // Begin automatic upload
-            getAuthToken(new Callback<String>() {
-                @Override
-                public void apply(@NonNull String authToken) {
-                    Services.cloud.deleteTrack(track, authToken);
-                }
-                @Override
-                public void error(String error) {
-                    Toast.makeText(getApplicationContext(), "Track delete failed: " + error, Toast.LENGTH_SHORT).show();
-                }
-            });
-        } else {
-            // This can happen between onResume and AuthEvent
-            Log.w(TAG, "Track delete failed: not signed in");
-        }
+        getAuthToken(new Callback<String>() {
+            @Override
+            public void apply(@NonNull String authToken) {
+                Services.cloud.deleteTrack(track, authToken);
+            }
+            @Override
+            public void error(String error) {
+                Toast.makeText(getApplicationContext(), "Track delete failed: " + error, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     // Listen for deletion of this track

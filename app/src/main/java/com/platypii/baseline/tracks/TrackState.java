@@ -14,6 +14,7 @@ public class TrackState {
     public static final int RECORDING = 1;
     public static final int UPLOADING = 2;
     public static final int UPLOADED = 3;
+    public static final int QUEUED = 4;
 
     private final Map<TrackFile,Integer> syncState = new HashMap<>();
 
